@@ -1,0 +1,44 @@
+version: '2.3'
+
+services:
+    nginx:
+        restart: always
+        image: nginx:1.12-alpine
+        ports:
+            - 8000:8000
+        volumes:
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - static_volume:/app/backend/server/static
+    wsgiserver:
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: /app/docker/backend/wsgi-entrypoint.sh
+        runtime: nvidia
+        environment:
+            DISPLAY: $DISPLAY
+            QT_X11_NO_MITSHM: 1
+            QT_DEBUG_PLUGINS: 1
+            NVIDIA_VISIBLE_DEVICES: all
+            NVIDIA_DRIVER_CAPABILITIES: compute
+        command: nvidia-smi
+        volumes:
+            - static_volume:/app/backend/server/static
+        expose:
+            - 8000
+    frontend:
+        build: 
+            context: .
+            dockerfile: ./docker/frontend/Dockerfile
+        ports:
+        - 8501:8501
+        depends_on:
+        - wsgiserver
+        volumes:
+        - ./frontend:/app
+        restart: always
+        container_name: frontend
+        
+
+volumes:
+    static_volume: {}
