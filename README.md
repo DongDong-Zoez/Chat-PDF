@@ -16,6 +16,12 @@ HF_API_TOKEN = xxx
 SECRET_KEY = xxx
 ```
 
+3. type following command 
+
+```terminal
+docker-compose up --build
+```
+
 which
 
 - `HF_API_TOKEN:` your huggingface api token (this is make sure you can run llama2 in your local machine)
